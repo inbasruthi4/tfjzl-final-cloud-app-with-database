@@ -18,6 +18,7 @@ class Instructor(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
+
     full_time = models.BooleanField(default=True)
     total_learners = models.IntegerField()
 
@@ -31,6 +32,7 @@ class Learner(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
+
     STUDENT = 'student'
     DEVELOPER = 'developer'
     DATA_SCIENTIST = 'data_scientist'
@@ -49,6 +51,7 @@ class Learner(models.Model):
         choices=OCCUPATION_CHOICES,
         default=STUDENT
     )
+
     social_link = models.URLField(max_length=200)
 
     def __str__(self):
@@ -62,20 +65,23 @@ class Course(models.Model):
         max_length=30,
         default='online course'
     )
+
     image = models.ImageField(upload_to='course_images/')
     description = models.CharField(max_length=1000)
     pub_date = models.DateField(null=True)
     instructors = models.ManyToManyField(Instructor)
+
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         through='Enrollment'
     )
+
     total_enrollment = models.IntegerField(default=0)
     is_enrolled = False
 
     def __str__(self):
         return "Name: " + self.name + "," + \
-               "Description: " + self.description
+            "Description: " + self.description
 
 
 # Lesson model
@@ -102,24 +108,27 @@ class Enrollment(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )
+
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     date_enrolled = models.DateField(default=now)
+
     mode = models.CharField(
         max_length=5,
         choices=COURSE_MODES,
         default=AUDIT
     )
+
     rating = models.FloatField(default=5.0)
 
 
 # Question model
 class Question(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    content = models.CharField(max_length=200)
+    question_text = models.CharField(max_length=200)
     grade = models.IntegerField(default=50)
 
     def __str__(self):
-        return self.content
+        return self.question_text
 
     def is_get_score(self, selected_ids):
         correct_answers = self.choice_set.filter(
@@ -137,11 +146,11 @@ class Question(models.Model):
 # Choice model
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    content = models.CharField(max_length=200)
+    choice_text = models.CharField(max_length=200)
     is_correct = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.content
+        return self.choice_text
 
 
 # Submission model
@@ -150,4 +159,8 @@ class Submission(models.Model):
         Enrollment,
         on_delete=models.CASCADE
     )
+
     choices = models.ManyToManyField(Choice)
+
+    def __str__(self):
+        return f"Submission {self.id}"
