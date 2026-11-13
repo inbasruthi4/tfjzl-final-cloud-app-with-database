@@ -101,3 +101,49 @@ class Enrollment(models.Model):
 #class Submission(models.Model):
 #    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
 #    choices = models.ManyToManyField(Choice)
+
+
+# Question model
+class Question(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    text = models.CharField(max_length=200, default="Question")
+    grade = models.FloatField(default=0)
+
+    def __str__(self):
+        return self.text
+
+    def is_get_score(self, selected):
+        selected_ids = {
+            item.pk if isinstance(item, Choice) else int(item)
+            for item in selected
+            if item is not None
+        }
+
+        correct_ids = set(
+            self.choice_set.filter(is_correct=True).values_list(
+                "id", flat=True
+            )
+        )
+
+        return bool(correct_ids) and selected_ids == correct_ids
+
+
+# Choice model
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    text = models.CharField(max_length=200, default="Choice")
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.text
+
+
+# Submission model
+class Submission(models.Model):
+    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
+    choices = models.ManyToManyField(Choice)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Submission #{self.pk} by {self.enrollment.user.username}"
+
