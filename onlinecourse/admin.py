@@ -34,9 +34,9 @@ class QuestionInline(admin.StackedInline):
 # Question Admin
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [ChoiceInline]
-    list_display = ('content', 'course', 'grade')
+    list_display = ('question_text', 'course', 'grade')
     list_filter = ['course']
-    search_fields = ['content']
+    search_fields = ['question_text']
 
 
 # Course Admin
